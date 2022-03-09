@@ -6,6 +6,8 @@
  *
  * Description:  Det stores the development errors reported by other modules.
  *               This source file is a STUB for the Det Module
+ *
+ * Author: Salma Sherif
  ******************************************************************************/
 
 #include "../inc/Det.h"
@@ -21,10 +23,9 @@ Std_ReturnType Det_ReportError( uint16 ModuleId,
                       uint8 ApiId,
                       uint8 ErrorId )
 {
-    Det_ModuleId = ModuleId; 
+    Det_ModuleId = ModuleId;
     Det_InstanceId = InstanceId;
-    Det_ApiId = ApiId; 
+    Det_ApiId = ApiId;
     Det_ErrorId = ErrorId;
     return E_OK;
 }
-
