@@ -24,64 +24,73 @@
 
 STATIC Csm_StateType Csm_State = CSM_STATE_UNINIT;
 uint32 QueueLoopCounter = 0;
-/*
-Crypto_QueueType Crypto_Queue_SignatureGenerate =
-{	.size = 50};
 
-Crypto_QueueType Crypto_Queue_SignatureVerify = {
-	.size = 50};
 
-Crypto_QueueType *Crypto_Queue[CRYPTO_QUEUES_NUM] = {
-	&Crypto_Queue_SignatureGenerate,
-	&Crypto_Queue_SignatureVerify};
+Crypto_QueueType Crypto_Queue_Channel1 =
+{	.size = csmQueue.CsmQueueSize};
+
+Crypto_AlgorithmInfoType Crypto_AlgorithmInfoType_SignatureGenerate = {
+	.family = CsmJobPrimitiveRef.SignatureGenerateConfig.family,
+	.mode = CsmJobPrimitiveRef.SignatureGenerateConfig.mode,
+	.secondFamily = CsmJobPrimitiveRef.SignatureGenerateConfig.secondFamily,
+	.keyLength = CsmJobPrimitiveRef.SignatureGenerateConfig.keyLength
+};
+
+Crypto_AlgorithmInfoType Crypto_AlgorithmInfoType_SignatureVerify = {
+	.family = CsmJobPrimitiveRef.SignatureVerifyConfig.family,
+	.mode = CsmJobPrimitiveRef.SignatureVerifyConfig.mode,
+	.secondFamily = CsmJobPrimitiveRef.SignatureVerifyConfig.secondFamily,
+	.keyLength = CsmJobPrimitiveRef.SignatureVerifyConfig.keyLength
+};
+
+Crypto_AlgorithmInfoType Crypto_AlgorithmInfoType_Hash = {
+	.family = CsmJobPrimitiveRef.HashConfig.family,
+	.mode = CsmJobPrimitiveRef.HashConfig.mode,
+	.secondFamily = CsmJobPrimitiveRef.HashConfig.secondFamily,
+	.keyLength = CsmJobPrimitiveRef.HashConfig.keyLength
+};
 
 Crypto_PrimitiveInfoType Crypto_PrimitiveInfo_SignatureGenerate = {
-	.service = CSM_SIGNATURE_GENERATE_SID // SignatureGenerate SID
+	.service = CRYPTO_SIGNATUREGENERATE,
+	.algorithm = Crypto_AlgorithmInfoType_SignatureGenerate,
+	.keyLength = Crypto_AlgorithmInfoType_SignatureGenerate.keyLength
 };
 
 Crypto_PrimitiveInfoType Crypto_PrimitiveInfo_SignatureVerify = {
-	.service = CSM_SIGNATURE_VERIFY_SID // SignatureVerify SID
+	.service = CRYPTO_SIGNATUREVERIFY,
+	.algorithm = Crypto_AlgorithmInfoType_SignatureVerify,
+	.keyLength = Crypto_AlgorithmInfoType_SignatureVerify.keyLength
 };
 
+Crypto_PrimitiveInfoType Crypto_PrimitiveInfo_Hash = {
+	.service = CRYPTO_HASH,
+	.algorithm = Crypto_AlgorithmInfoType_Hash,
+	.keyLength = Crypto_AlgorithmInfoType_Hash.keyLength
+};
 
 Crypto_PrimitiveInfoType *Crypto_PrimitiveInfo[] = {
 	&Crypto_PrimitiveInfo_SignatureGenerate,
-	&Crypto_PrimitiveInfo_SignatureVerify
+	&Crypto_PrimitiveInfo_SignatureVerify,
+	&Crypto_PrimitiveInfo_Hash
 
-};
-
-const CsmJob CsmJob_SignatureGenerate = {
-	.CsmJobId = 0,
-	.CsmInOutRedirectionRef = 5,
-	.CsmJobQueueRef = &CsmQueue_SignatureGenerate};
-const CsmJob CsmJob_SignatureVerify = {
-	.CsmJobId = 1,
-	.CsmJobQueueRef = &CsmQueue_SignatureVerify};
-
-CsmJob *CsmJobs[] = {
-	&CsmJob_SignatureGenerate,
-	&CsmJob_SignatureVerify};
-
-const CsmQueue CsmQueue_SignatureGenerate = {
-	.CsmQueueSize = 10,
-};
-
-const CsmQueue CsmQueue_SignatureVerify = {
-	.CsmQueueSize = 20,
 };
 
 const Crypto_JobInfoType Crypto_JobInfo_SignatureGenerate = {
-	.jobId = 0,
-	.jobPriority = 1};
+	.jobId = generateSignatureCsmJob.CsmJobId,
+	.jobPriority = generateSignatureCsmJob.CsmJobPriority};
 
 const Crypto_JobInfoType Crypto_JobInfo_SignatureVerify = {
-	.jobId = 1,
-	.jobPriority = 2};
+	.jobId = verifySignatureCsmJob.CsmJobId,
+	.jobPriority = verifySignatureCsmJob.CsmJobPriority};
+
+const Crypto_JobInfoType Crypto_JobInfo_Hash = {
+	.jobId = hashCsmJob.CsmJobId,
+	.jobPriority = hashCsmJob.CsmJobPriority};
 
 const Crypto_JobInfoType *Crypto_JobInfo[] = {
 	&Crypto_JobInfo_SignatureGenerate,
-	&Crypto_JobInfo_SignatureVerify};
-	*/
+	&Crypto_JobInfo_SignatureVerify,
+	&Crypto_JobInfo_Hash};
 
 /************************************************************************************
  * Service Name: Csm_Init
@@ -117,10 +126,7 @@ void Csm_Init(const Csm_ConfigType *configPtr)
 	else
 #endif
 	{
-		for (QueueLoopCounter; QueueLoopCounter < CRYPTO_QUEUES_NUM; QueueLoopCounter++)
-		{
-			Crypto_Queue[QueueLoopCounter]->size = 0;
-		}
+		Crypto_Queue_Channel1.size = 0;
 
 		Csm_State = CSM_STATE_INIT;
 	}
@@ -220,7 +226,7 @@ Std_ReturnType Csm_SignatureGenerate(
 		reported to the DET when CsmDevErrorDetect is true.
 	*/
 
-	if (Crypto_PrimitiveInfo[jobId]->service != CSM_SIGNATURE_GENERATE_SID)
+	if (Crypto_PrimitiveInfo[jobId]->service != CRYPTO_SIGNATUREGENERATE)
 	{
 #if (CSM_RUNTIME_ERROR_DETECT == STD_ON)
 		Det_ReportError(CSM_MODULE_ID, CSM_INSTANCE_ID, CSM_SIGNATURE_VERIFY_SID,
@@ -234,7 +240,7 @@ Std_ReturnType Csm_SignatureGenerate(
 		runtime error CSM_E_QUEUE_FULL shall be reported to the DET.
 	*/
 
-	if (Crypto_Queue[jobId]->size == Crypto_Queue[jobId]->capacity)
+	if (Crypto_Queue_Channel1.size == Crypto_Queue_Channel1.capacity)
 	{
 #if (CSM_RUNTIME_ERROR_DETECT == STD_ON)
 		Det_ReportError(CSM_MODULE_ID, CSM_INSTANCE_ID, CSM_SIGNATURE_VERIFY_SID,
@@ -273,21 +279,31 @@ Std_ReturnType Csm_SignatureGenerate(
 		modules.
 
 	*/
+	Crypto_JobPrimitiveInputOutputType NewJobPrimitiveInputOutputType = {
+			.inputPtr = dataPtr,
+			.inputLength = dataLength,
+			.outputPtr = signaturePtr,
+			.outputLengthPtr = signatureLengthPtr,
+	};
+
 	Crypto_JobType NewJobInQueue = {
 		.jobId = jobId,
-		.jobState = CsmJobs[jobId],
-		.jobPrimitiveInputOutput = CsmJobs[jobId],
+		.jobState = CRYPTO_JOBSTATE_IDLE,
+		.jobPrimitiveInputOutput = NewJobPrimitiveInputOutputType,
 		.jobPrimitiveInfo = Crypto_PrimitiveInfo[jobId],
 		.jobInfo = Crypto_JobInfo[jobId],
-		.cryptoKeyId = CsmJobs[jobId],
-		.jobRedirectionInfoRef = CsmJobs[jobId],
-		.targetCryptoKeyId = CsmJobs[jobId],
+//		.cryptoKeyId -> Added by CryIF
+//		.targetCryptoKeyId -> Added by CryIF
 		.jobPriority = Crypto_JobInfo[jobId]->jobPriority,
 	};
 
-	if (insertJob(&NewJobInQueue))
+	if (!insertJob(NewJobInQueue))
 	{
-		/* code */
+	#if (CSM_RUNTIME_ERROR_DETECT == STD_ON)
+		Det_ReportError(CSM_MODULE_ID, CSM_INSTANCE_ID, CSM_SIGNATURE_VERIFY_SID,
+						CSM_E_QUEUE_FULL);
+	#endif
+		return CRYPTO_E_BUSY;
 	}
 
 	/*
@@ -371,8 +387,9 @@ Std_ReturnType Csm_SignatureVerify(
 {
 	// TODO
 	/*
-	1. Validate inputs (Check requirments and DET errors)
+	1. Validate inputs (Check requirements and DET errors)
 	*/
+	return E_OK;
 }
 
 /************************************************************************************
@@ -392,45 +409,37 @@ void Csm_MainFunction(void)
 {
 
 //invoke higher priority job to process which is the front process but need to check if it cancelled or no jobs in queue
- if(jobQueue.arr[jobQueue.front].jobPriority != -1 && jobQueue.size != 0)
+ if(Crypto_Queue_Channel1.Crypto_Jobs[Crypto_Queue_Channel1.front].jobPriority != -1 && Crypto_Queue_Channel1.size != 0)
  {
-	 Std_ReturnType res= Crypto_ProcessECDSA(jobQueue.arr[jobQueue.front]);
-	 CryIf_CallbackNotification(jobQueue.arr[jobQueue.front].jobPtr,res);
-	 deleteNextJob();
+	 Std_ReturnType res= Crypto_ProcessECDSA(Crypto_Queue_Channel1.Crypto_Jobs[Crypto_Queue_Channel1.front]);
+	 CryIf_CallbackNotification(Crypto_Queue_Channel1.Crypto_Jobs[Crypto_Queue_Channel1.front].jobPtr,res);
+	 deleteNextJob(&Crypto_Queue_Channel1);
  }
- else if(jobQueue.arr[jobQueue.front].jobPriority == -1)
+ else if(Crypto_Queue_Channel1.Crypto_Jobs[Crypto_Queue_Channel1.front].jobPriority == -1)
  {
-	 deleteNextJob();
+	 deleteNextJob(&Crypto_Queue_Channel1);
  }
 
 }
 
-boolean insertJob(Crypto_JobType *job)
+boolean insertJob(Crypto_QueueType* queue, Crypto_JobType job)
 {
 
-	if (Crypto_Queue[job->jobId]->size < QUEUE_MAX_SIZE)
+	if (queue->size < QUEUE_MAX_SIZE)
 	{
 		boolean inserted = 0;
-		Crypto_Queue[job->jobId]->rear += 1;
-		for (uint8 i = Crypto_Queue[job->jobId]->front; i <= Crypto_Queue[job->jobId]->size; i++)
+		queue->rear += 1;
+		for (uint8 i = queue->front; i <= queue->size; i++)
 		{
-			if (job->jobInfo.jobPriority > Crypto_Queue[job->jobId]->Crypto_Jobs[i].jobPriority)
+			if (job->jobInfo.jobPriority > queue->Crypto_Jobs[i].jobPriority)
 			{
-				Crypto_JobType temp = Crypto_Queue[job->jobId]->Crypto_Jobs[i];
-				Crypto_Queue[job->jobId]->Crypto_Jobs[i].jobId = job->jobId;
-				Crypto_Queue[job->jobId]->Crypto_Jobs[i].cryptoKeyId = job->cryptoKeyId;
-				Crypto_Queue[job->jobId]->Crypto_Jobs[i].jobPriority = job->jobInfo.jobPriority;
-				Crypto_Queue[job->jobId]->Crypto_Jobs[i].jobPrimitiveInfo = job->jobPrimitiveInfo->primitiveInfo->service;
-				Crypto_Queue[job->jobId]->Crypto_Jobs[i].jobPtr = job;
-				for (int j = Crypto_Queue[job->jobId]->rear - 1; j >= i + 1; j--)
+				Crypto_JobType temp = queue->Crypto_Jobs[i];
+				queue->Crypto_Jobs[i] = job;
+				for (int j = queue->rear - 1; j >= i + 1; j--)
 				{
-					Crypto_Queue[job->jobId]->Crypto_Jobs[j + 1].jobId = Crypto_Queue[job->jobId]->Crypto_Jobs[j].jobId;
-					Crypto_Queue[job->jobId]->Crypto_Jobs[j + 1].cryptoKeyId = Crypto_Queue[job->jobId]->Crypto_Jobs[j].cryptoKeyId;
-					Crypto_Queue[job->jobId]->Crypto_Jobs[j + 1].jobPriority = Crypto_Queue[job->jobId]->Crypto_Jobs[j].jobPriority;
-					Crypto_Queue[job->jobId]->Crypto_Jobs[j + 1].service = Crypto_Queue[job->jobId]->Crypto_Jobs[j].service;
-					Crypto_Queue[job->jobId]->Crypto_Jobs[j + 1].jobPtr = Crypto_Queue[job->jobId]->Crypto_Jobs[j].jobPtr;
+					queue->Crypto_Jobs[j + 1] = queue->Crypto_Jobs[j];
 				}
-				Crypto_Queue[job->jobId]->Crypto_Jobs[i + 1] = temp;
+				queue->Crypto_Jobs[i + 1] = temp;
 				inserted = 1;
 				break;
 			}
@@ -438,13 +447,9 @@ boolean insertJob(Crypto_JobType *job)
 
 		if (inserted == 0)
 		{
-			Crypto_Queue[job->jobId]->Crypto_Jobs[Crypto_Queue[job->jobId]->rear % QUEUE_MAX_SIZE].jobId = job->jobId;
-			Crypto_Queue[job->jobId]->Crypto_Jobs[Crypto_Queue[job->jobId]->rear % QUEUE_MAX_SIZE].cryptoKeyId = job->cryptoKeyId;
-			Crypto_Queue[job->jobId]->Crypto_Jobs[Crypto_Queue[job->jobId]->rear % QUEUE_MAX_SIZE].jobPriority = job->jobInfo.jobPriority;
-			Crypto_Queue[job->jobId]->Crypto_Jobs[Crypto_Queue[job->jobId]->rear % QUEUE_MAX_SIZE].service = job->jobPrimitiveInfo->primitiveInfo->service;
-			Crypto_Queue[job->jobId]->Crypto_Jobs[Crypto_Queue[job->jobId]->rear % QUEUE_MAX_SIZE].jobPtr = job;
+			queue->Crypto_Jobs[queue->rear % QUEUE_MAX_SIZE] = job;
 		}
-		Crypto_Queue[job->jobId]->size += 1;
+		queue->size += 1;
 
 		return TRUE;
 	}

@@ -42,6 +42,10 @@
 #define CSM_JOB_ID3		(2U)
 #define USE_FNC 		(0U)
 #define JOB_PRIORITY 	(10U)
+#define JOB_PRIORITY_SIGNATURE_GENERATE (1U)
+#define JOB_PRIORITY_SIGNATURE_VERIFY   (2U)
+#define JOB_PRIORITY_HASH               (3U)
+
 
 
 /* CsmCallback */

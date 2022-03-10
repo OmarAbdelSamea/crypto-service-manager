@@ -70,7 +70,7 @@
 #endif
 
 /* AUTOSAR version checking between Crypto_GeneralTypes.h and CryIf.h */
-#include"../../General/Rte_Csm_Type.h"
+#include"../../Rte/Rte_Csm_Type.h"
 #if       ((RTE_CSM_TYPE_AR_RELEASE_MAJOR_VERSION != CRYIF_AR_RELEASE_MAJOR_VERSION)\
 		|| (RTE_CSM_TYPE_AR_RELEASE_MINOR_VERSION != CRYIF_AR_RELEASE_MINOR_VERSION)\
 		|| (RTE_CSM_TYPE_AR_RELEASE_PATCH_VERSION != CRYIF_AR_RELEASE_PATCH_VERSION))

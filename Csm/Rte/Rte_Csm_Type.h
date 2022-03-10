@@ -20,18 +20,23 @@
 #define RTE_CSM_TYPE_AR_RELEASE_MINOR_VERSION                   (7U)
 #define RTE_CSM_TYPE_AR_RELEASE_PATCH_VERSION                   (0U)
 
-/*typedef enum
+#include "Crypto_GeneralTypes.h"
+
+typedef enum
 {
-  CRYPTO_OPERATIONMODE_START = 1, CRYPTO_OPERATIONMODE_UPDATE,
+  CRYPTO_OPERATIONMODE_START=1, CRYPTO_OPERATIONMODE_UPDATE,
   CRYPTO_OPERATIONMODE_STREAMSTART, CRYPTO_OPERATIONMODE_FINISH,
   CRYPTO_OPERATIONMODE_SINGLECALL
 } Crypto_OperationModeType;
-**/
+
 typedef enum {
     CRYPTO_E_VER_OK,
     CRYPTO_E_VER_NOT_OK
 } Crypto_VerifyResultType;
 
+
+/* Return for Std_ReturnType for Cryptostack */
+typedef Std_ReturnType Crypto_ResultType;
 
 
 #endif /* RTE_CSM_TYPE_H_ */
