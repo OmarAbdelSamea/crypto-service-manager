@@ -69,7 +69,6 @@
 
 #include "../../General/Platform_Types.h"
 
-#include "../../Rte/Rte_Csm_Type.h"
 #include "../../CryIf/inc/CryIf.h"
 
 /******************************************************************************
@@ -89,7 +88,6 @@
 #define CSM_E_INIT_FAILED 0x07
 #define CSM_E_PROCESSING_MOD 0x08
 #define CSM_E_SERVICE_TYPE 0x09
-
 #define CSM_E_QUEUE_FULL 0x01
 /*******************************************************************************
  *                              Function Pointer Types                          *
@@ -98,21 +96,19 @@
 /*******************************************************************************
  *                              Module Data Types                              *
  *******************************************************************************/
-typedef struct
-{
-	/* Implmentation specfic */
+typedef struct {
+/* Implmentation specfic */
 } Csm_ConfigType;
 
 typedef uint16 Csm_ConfigIdType;
 
-typedef struct
-{
-	float32 CsmMainFunctionPeriod;
+typedef struct {
+	const float32 CsmMainFunctionPeriod;
 } CsmMainFunction;
 
+
 /* CsmKey */
-typedef struct
-{
+typedef struct {
 	uint32 CsmKeyId;	   // 0,1,2,3
 	boolean CsmKeyUsePort; // false
 	CryIfKey *CsmKeyRef;
@@ -120,8 +116,7 @@ typedef struct
 /******************************/
 
 /* CsmQueue */
-typedef struct
-{
+typedef struct {
 	const uint32 CsmQueueSize;
 	CryIfChannel *CsmChannelRef;
 	CsmMainFunction CsmQueueMainFunctionRef;
@@ -129,8 +124,7 @@ typedef struct
 /******************************/
 
 /* CsmInOutRedirection */
-typedef struct
-{
+typedef struct {
 	uint32 CsmInputKeyElementId;
 	uint32 CsmOutputKeyElementId;
 	uint32 CsmSecondaryInputKeyElementId;
@@ -144,39 +138,15 @@ typedef struct
 } CsmInOutRedirection;
 
 /*******HASH DataTypes**************/
-typedef enum
-{
-	CRYPTO_ALGOFAM_SHA1 = 1,
-	CRYPTO_ALGOFAM_SHA2_224,
-	CRYPTO_ALGOFAM_SHA2_256,
-	CRYPTO_ALGOFAM_SHA2_384,
-	CRYPTO_ALGOFAM_SHA2_512,
-	CRYPTO_ALGOFAM_SHA2_512_224,
-	CRYPTO_ALGOFAM_SHA2_512_256,
-	CRYPTO_ALGOFAM_SHA3_224,
-	CRYPTO_ALGOFAM_SHA3_256,
-	CRYPTO_ALGOFAM_SHA3_384,
-	CRYPTO_ALGOFAM_SHA3_512,
-	CRYPTO_ALGOFAM_SHAKE128,
-	CRYPTO_ALGOFAM_SHAKE256,
-	CRYPTO_ALGOFAM_RIPEMD160,
-	CRYPTO_ALGOFAM_BLAKE_1_256,
-	CRYPTO_ALGOFAM_BLAKE_1_512,
-	CRYPTO_ALGOFAM_BLAKE_2s_256,
-	CRYPTO_ALGOFAM_BLAKE_2s_512,
-	CRYPTO_ALGOFAM_CUSTOM = 0xff,
-	CRYPTO_ALGOFAM_SM3
-} CsmHashAlgorithmFamily;
 
-typedef enum
-{
-	CRYPTO_ALGOMODE_NOT_SET,
-	CRYPTO_ALGOMODE_CUSTOM = 0xff
-} CsmHashAlgorithmMode;
+typedef Crypto_AlgorithmModeType CsmHashAlgorithmMode;
+
+typedef Crypto_AlgorithmFamilyType CsmHashAlgorithmFamily;
+
 typedef Crypto_AlgorithmFamilyType CsmHashAlgorithmSecondaryFamily;
 
-typedef struct
-{
+
+typedef struct {
 	CsmHashAlgorithmFamily family;
 	CsmHashAlgorithmMode mode;
 	CsmHashAlgorithmSecondaryFamily secondFamily;
@@ -184,29 +154,14 @@ typedef struct
 } CsmHashConfig;
 
 /***********Signature*****************/
-typedef enum
-{
-	CRYPTO_ALGOFAM_BRAINPOOL = 0x18,
-	CRYPTO_ALGOFAM_CUSTOM = 0xFF,
-	CRYPTO_ALGOFAM_ECCNIST = 0x19,
-	CRYPTO_ALGOFAM_ECDSA = 0x2C,
-	CRYPTO_ALGOFAM_ED25519 = 0x17,
-	CRYPTO_ALGOFAM_RSA = 0x16,
-	CRYPTO_ALGOFAM_SM2 = 0x27
-} CsmSignatureGenerateAlgorithmFamily;
+typedef Crypto_AlgorithmModeType CsmSignatureGenerateAlgorithmMode;
 
-typedef enum
-{
-	CRYPTO_ALGOMODE_CUSTOM = 0xFF,
-	CRYPTO_ALGOMODE_NOT_SET = 0x00,
-	CRYPTO_ALGOMODE_RSASSA_PKCS1_v1_5 = 0x0b,
-	CRYPTO_ALGOMODE_RSASSA_PSS = 0x0a
-} CsmSignatureGenerateAlgorithmMode;
+typedef Crypto_AlgorithmFamilyType CsmSignatureGenerateAlgorithmFamily;
+
 
 typedef Crypto_AlgorithmFamilyType CsmSignatureGenerateAlgorithmSecondaryFamily;
 
-typedef struct
-{
+typedef struct {
 	CsmSignatureGenerateAlgorithmFamily family;
 	CsmSignatureGenerateAlgorithmMode mode;
 	CsmSignatureGenerateAlgorithmSecondaryFamily secondFamily;
@@ -217,23 +172,15 @@ typedef struct
 /************Verify******************/
 
 /* CsmSignatureVerify */
-typedef enum
-{
-	CRYPTO_ALGOFAM_BRAINPOOL = 0x18,
-	CRYPTO_ALGOFAM_CUSTOM = 0xFF,
-	CRYPTO_ALGOFAM_ECCNIST = 0x19,
-	CRYPTO_ALGOFAM_ECDSA = 0x2C,
-	CRYPTO_ALGOFAM_ED25519 = 0x17,
-	CRYPTO_ALGOFAM_RSA = 0x16,
-	CRYPTO_ALGOFAM_SM2 = 0x27
-} CsmSignatureVerifyAlgorithmFamilyType;
 
-typedef CsmSignatureGenerateAlgorithmMode CsmSignatureVerifyAlgorithmModeType;
+
+typedef Crypto_AlgorithmFamilyType CsmSignatureVerifyAlgorithmFamilyType;
+
+typedef Crypto_AlgorithmModeType CsmSignatureVerifyAlgorithmModeType;
 
 typedef CsmSignatureGenerateAlgorithmSecondaryFamily CsmSignatureVerifyAlgorithmSecondaryFamilyType;
 
-typedef struct
-{
+typedef struct {
 	CsmSignatureVerifyAlgorithmFamilyType family;
 	CsmSignatureVerifyAlgorithmModeType mode;
 	CsmSignatureVerifyAlgorithmSecondaryFamilyType secondFamily;
@@ -243,8 +190,7 @@ typedef struct
 /********Primitives**********************/
 
 /* CsmPrimitives */
-typedef struct
-{
+typedef struct {
 	CsmSignatureGenerateConfig SignatureGenerateConfig;
 	CsmSignatureVerifyConfig SignatureVerifyConfig;
 	CsmHashConfig HashConfig;
@@ -253,40 +199,28 @@ typedef struct
 
 /**********************/
 /* CsmJob */
-typedef enum
-{
-	CRYPTO_USE_FNC,
-	CRYPTO_USE_PORT,
-	CRYPTO_USE_PORT_OPTIMIZED
+typedef enum {
+	CRYPTO_USE_FNC, CRYPTO_USE_PORT, CRYPTO_USE_PORT_OPTIMIZED
 } CsmJobInterfaceUsePortType;
-
-typedef enum
-{
-	CRYPTO_USE_FNC,
-	CRYPTO_USE_PORT,
-} CsmJobServiceInterfaceContextUsePortType;
 
 typedef Crypto_ProcessingType CsmProcessingModeType;
 
 typedef void (*CsmCallback)(Crypto_JobType *job, Crypto_ResultType result);
 
-typedef struct
-{
+typedef struct {
 	uint32 CsmJobId;
 	CsmJobInterfaceUsePortType CsmJobInterfaceUsePort; // CRYPTO_USE_FNC
 	uint32 CsmJobPriority;
-	CsmJobServiceInterfaceContextUsePortType CsmJobServiceInterfaceContextUsePort; // CRYPTO_USE_FNC
-	CsmProcessingModeType CsmProcessingMode;									   // CRYPTO_PROCESSING_ASYNC
+	CsmJobInterfaceUsePortType CsmJobServiceInterfaceContextUsePort; // CRYPTO_USE_FNC
+	CsmProcessingModeType CsmProcessingMode;		// CRYPTO_PROCESSING_ASYNC
 	CsmKey *CsmKeyRef;
 	CsmCallback *CsmJobPrimitiveCallbackRef; // list of name of functions in management layer that gonna be called
 	CsmPrimitives *CsmJobPrimitiveRef;
 	CsmQueue *CsmJobQueueRef;
 } CsmJob;
 
-typedef enum
-{
-	CSM_STATE_UNINIT,
-	CSM_STATE_INIT
+typedef enum {
+	CSM_STATE_UNINIT, CSM_STATE_INIT
 } Csm_StateType;
 
 /******************************/
@@ -297,34 +231,24 @@ typedef enum
 
 void Csm_Init(const Csm_ConfigType *configPtr);
 
-Std_ReturnType Csm_SignatureGenerate(
-	uint32 jobId,
-	Crypto_OperationModeType mode,
-	const uint8 *dataPtr,
-	uint32 dataLength,
-	uint8 *signaturePtr,
-	uint32 *signatureLengthPtr);
+Std_ReturnType Csm_SignatureGenerate(uint32 jobId,
+		Crypto_OperationModeType mode, const uint8 *dataPtr, uint32 dataLength,
+		uint8 *signaturePtr, uint32 *signatureLengthPtr);
 
-Std_ReturnType Csm_SignatureVerify(
-	uint32 jobId,
-	Crypto_OperationModeType mode,
-	const uint8 *dataPtr,
-	uint32 dataLength,
-	uint8 *signaturePtr,
-	uint32 *signatureLengthPtr,
-	Crypto_VerifyResultType *verifyPtr);
+Std_ReturnType Csm_SignatureVerify(uint32 jobId, Crypto_OperationModeType mode,
+		const uint8 *dataPtr, uint32 dataLength, uint8 *signaturePtr,
+		uint32 *signatureLengthPtr, Crypto_VerifyResultType *verifyPtr);
 
-void deleteNextJob(Crypto_QueueType* queue);
+void deleteNextJob(Crypto_QueueType *queue);
 
-boolean insertJob(Crypto_QueueType* queue);
+boolean insertJob(Crypto_QueueType *queue);
 
 void Csm_MainFunction(void);
-
 
 /*******************************************************************************
  *                      external variables                                    *
  *******************************************************************************/
-extern const CsmCallback* CsmJobPrimitiveCallbackRef;
+extern const CsmCallback *CsmJobPrimitiveCallbackRef;
 extern const CsmPrimitives CsmJobPrimitiveRef;
 extern const CsmQueue csmQueue;
 extern const CsmKey csmKey;
@@ -332,9 +256,7 @@ extern const CsmJob generateSignatureCsmJob;
 extern const CsmJob verifySignatureCsmJob;
 extern const CsmJob hashCsmJob;
 
-CsmJob *CsmJobs[] = {
-	&generateSignatureCsmJob,
-	&verifySignatureCsmJob,
-	&hashCsmJob};
+CsmJob *CsmJobs[] = { &generateSignatureCsmJob, &verifySignatureCsmJob,
+		&hashCsmJob };
 
 #endif /* CSM_H */

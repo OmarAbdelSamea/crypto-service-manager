@@ -138,7 +138,7 @@ typedef struct{
 
 typedef struct {
 uint32 CryIfKeyId;
-CryptoKey*CryIfKeyRef;
+CryptoKey* CryIfKeyRef;
 
 }CryIfKey;
 

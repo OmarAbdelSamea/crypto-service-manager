@@ -15,20 +15,30 @@
 #define CRYPTO_GENERAL_TYPES_AR_RELEASE_MINOR_VERSION (7U)
 #define CRYPTO_GENERAL_TYPES_AR_RELEASE_PATCH_VERSION (0U)
 #include "Std_Types.h"
-typedef enum
-{
-	CRYPTO_JOBSTATE_IDLE,
-	CRYPTO_JOBSTATE_ACTIVE
-} Crypto_JobStateType;
 
+/* In Autosar specfied to be in Rte_Csm_Type.h */
 typedef enum
 {
-	CRYPTO_E_VER_OK,
-	CRYPTO_E_VER_NOT_OK
+  CRYPTO_OPERATIONMODE_START=1, CRYPTO_OPERATIONMODE_UPDATE,
+  CRYPTO_OPERATIONMODE_STREAMSTART, CRYPTO_OPERATIONMODE_FINISH,
+  CRYPTO_OPERATIONMODE_SINGLECALL
+} Crypto_OperationModeType;
+
+typedef enum {
+    CRYPTO_E_VER_OK,
+    CRYPTO_E_VER_NOT_OK
 } Crypto_VerifyResultType;
 
-typedef struct
-{
+
+/* Return for Std_ReturnType for Cryptostack */
+typedef Std_ReturnType Crypto_ResultType;
+ /**************************************/
+
+typedef enum {
+	CRYPTO_JOBSTATE_IDLE, CRYPTO_JOBSTATE_ACTIVE
+} Crypto_JobStateType;
+
+typedef struct {
 	const uint8 *inputPtr;
 	uint32 inputLength;
 	const uint8 *secondaryInputPtr;
@@ -44,15 +54,13 @@ typedef struct
 	uint64 *output64Ptr;
 	Crypto_OperationModeType mode;
 } Crypto_JobPrimitiveInputOutputType;
-typedef struct
-{
+typedef struct {
 
 	uint32 jobId;
 	uint32 jobPriority;
 
 } Crypto_JobInfoType;
-typedef enum
-{
+typedef enum {
 	CRYPTO_HASH,
 	CRYPTO_MACGENERATE,
 	CRYPTO_MACVERIFY,
@@ -69,8 +77,7 @@ typedef enum
 	CRYPTO_KEYEXCHANGECALCPUBVAL
 } Crypto_ServiceInfoType;
 
-typedef enum
-{
+typedef enum {
 	CRYPTO_ALGOFAM_NOT_SET,
 	CRYPTO_ALGOFAM_SHA1,
 	CRYPTO_ALGOFAM_SHA2_224,
@@ -118,8 +125,8 @@ typedef enum
 	CRYPTO_ALGOFAM_X25519,
 	CRYPTO_ALGOFAM_ECDH,
 } Crypto_AlgorithmFamilyType;
-typedef enum
-{
+
+typedef enum {
 	CRYPTO_ALGOMODE_NOT_SET,
 	CRYPTO_ALGOMODE_ECB,
 	CRYPTO_ALGOMODE_CBC,
@@ -142,29 +149,25 @@ typedef enum
 	CRYPTO_ALGOMODE_SIPHASH_2_4,
 	CRYPTO_ALGOMODE_SIPHASH_4_8
 } Crypto_AlgorithmModeType;
-typedef struct
-{
+
+typedef struct {
 	Crypto_AlgorithmFamilyType family;
 	Crypto_AlgorithmFamilyType secondaryFamily;
 	uint32 keyLength;
 	Crypto_AlgorithmModeType mode;
 
 } Crypto_AlgorithmInfoType;
-typedef struct
-{
+typedef struct {
 	const uint32 resultLength;
 	const Crypto_ServiceInfoType service;
 	const Crypto_AlgorithmInfoType algorithm;
 
 } Crypto_PrimitiveInfoType;
-typedef enum
-{
-	CRYPTO_PROCESSING_ASYNC,
-	CRYPTO_PROCESSING_SYNC
+typedef enum {
+	CRYPTO_PROCESSING_ASYNC, CRYPTO_PROCESSING_SYNC
 } Crypto_ProcessingType;
 
-typedef struct
-{
+typedef struct {
 	uint32 callbackId;
 	const Crypto_PrimitiveInfoType *primitiveInfo;
 	uint32 secureCounterId;
@@ -173,8 +176,7 @@ typedef struct
 	const boolean callbackUpdateNotification;
 
 } Crypto_JobPrimitiveInfoType;
-typedef struct
-{
+typedef struct {
 	uint8 redirectionConfig;
 	uint32 inputKeyId;
 	uint32 inputKeyElementId;
@@ -189,8 +191,7 @@ typedef struct
 
 } Crypto_JobRedirectionInfoType;
 
-typedef struct
-{
+typedef struct {
 	uint32 jobId;
 	Crypto_JobStateType jobState;
 	Crypto_JobPrimitiveInputOutputType jobPrimitiveInputOutput;
@@ -202,12 +203,11 @@ typedef struct
 	const uint32 jobPriority;
 } Crypto_JobType;
 
-typedef struct
-{
-    Crypto_JobType Crypto_Jobs[128];
-    uint8 size;
-    uint8 capacity;
-    uint8 front, rear;
+typedef struct {
+	Crypto_JobType Crypto_Jobs[128];
+	uint8 size;
+	uint8 capacity;
+	uint8 front, rear;
 } Crypto_QueueType;
 
 #endif /*CRYPTO_GENERAL_TYPES_H */
